@@ -21,7 +21,8 @@ def print_menu() -> None:
     print("5. Add a new book")
     print("6. Update a book price")
     print("7. Delete a book")
-    print("8. Quit")
+    print("8. Search books by author")
+    print("9. Quit")
 
 
 def welcome_screen() -> None:
@@ -166,6 +167,30 @@ def update_price(cursor: sqlite3.Cursor) -> None:
         print("Invalid input.")
 
 
+def search_by_author(cursor: sqlite3.Cursor) -> None:
+    keyword = input("Enter an author keyword: ").strip()
+
+    cursor.execute(
+        """
+        SELECT bookId, title, author, price
+        FROM book
+        WHERE author LIKE ?
+        ORDER BY author, title
+        """,
+        (f"%{keyword}%",)
+    )
+    rows = cursor.fetchall()
+
+    print_divider()
+    print("Matching books")
+
+    if rows:
+        for row in rows:
+            print(row)
+    else:
+        print("No books found.")
+
+
 def delete_book(cursor: sqlite3.Cursor) -> None:
     try:
         book_id = int(input("Enter book id to delete: ").strip())
@@ -218,6 +243,9 @@ def main() -> None:
                 delete_book(cursor)
                 pause()
             elif choice == "8":
+                search_by_author(cursor)
+                pause()
+            elif choice == "9":
                 print_divider()
                 print("Goodbye!")
                 break
